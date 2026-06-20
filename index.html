@@ -45,6 +45,10 @@
       border-radius: 10px;
       margin-top: 20px;
     }
+    input[type="range"] {
+      width: 250px;
+      margin: 10px;
+    }
   </style>
 </head>
 <body>
@@ -59,6 +63,11 @@
     
     <br><br>
     
+    ⏱ Time
+    <input id="time" type="range" min="0" value="0" step="1">
+    
+    <br>
+
     🔊 Volume
     <input id="vol" type="range" min="0" max="5" step="0.1" value="1">
     
@@ -74,6 +83,7 @@
   <script>
     let songs = [];
     let audio = document.getElementById("audio");
+    let timeControl = document.getElementById("time");
     let current = 0;
     
     // Audio Context for Volume Boost
@@ -84,12 +94,27 @@
     source.connect(gain);
     gain.connect(ctx.destination);
     
+    // Volume Control
     document.getElementById("vol").oninput = function() {
       gain.gain.value = this.value;
     }
 
+    // Time Control - Set max length when song loads
+    audio.onloadedmetadata = function() {
+      timeControl.max = audio.duration;
+    };
+
+    // Time Control - Move slider as song plays
+    audio.ontimeupdate = function() {
+      timeControl.value = audio.currentTime;
+    };
+
+    // Time Control - Skip around when user drags the slider
+    timeControl.oninput = function() {
+      audio.currentTime = this.value;
+    };
+
     function play() {
-      // Resume context if browser paused it
       if (ctx.state === 'suspended') {
         ctx.resume();
       }
@@ -108,8 +133,8 @@
     }
 
     function addMusic() {
-      // Username updated to Clover-v8
-      window.open("https://github.com/Clover-v8/Car-Music-Player/upload/main/songs", "_blank");
+      // Points exactly to your lowercase repository
+      window.open("https://github.com/Clover-v8/car-music-player/upload/main/songs", "_blank");
     }
 
     async function loadSongs() {
