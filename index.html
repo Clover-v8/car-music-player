@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Classic Car Audio</title>
+  <style>
+    body {
+      background: #111;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+    .player {
+      width: 900px;
+      height: 450px;
+      margin: auto;
+      margin-top: 50px;
+      background: #222;
+      border-radius: 25px;
+      padding: 25px;
+    }
+    .screen {
+      background: black;
+      color: #00ff55;
+      font-size: 30px;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    button {
+      background: #333;
+      color: white;
+      border: 0;
+      padding: 15px;
+      margin: 10px 10px 10px 0;
+      border-radius: 30px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #444;
+    }
+    .list {
+      height: 150px;
+      overflow: auto;
+      background: #111;
+      padding: 10px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="player">
+    <h1>🚗 CLASSIC CAR AUDIO</h1>
+    
+    <div id="song" class="screen">No Song</div>
+    
+    <button onclick="play()">▶ Play</button>
+    <button onclick="pause()">⏸ Pause</button>
+    
+    <br><br>
+    
+    🔊 Volume
+    <input id="vol" type="range" min="0" max="5" step="0.1" value="1">
+    
+    <br><br>
+    
+    <button onclick="addMusic()">➕ ADD MUSIC</button>
+    
+    <div id="list" class="list"></div>
+    
+    <audio id="audio"></audio>
+  </div>
+
+  <script>
+    let songs = [];
+    let audio = document.getElementById("audio");
+    let current = 0;
+    
+    // Audio Context for Volume Boost
+    let ctx = new (window.AudioContext || window.webkitAudioContext)();
+    let source = ctx.createMediaElementSource(audio);
+    let gain = ctx.createGain();
+    
+    source.connect(gain);
+    gain.connect(ctx.destination);
+    
+    document.getElementById("vol").oninput = function() {
+      gain.gain.value = this.value;
+    }
+
+    function play() {
+      // Resume context if browser paused it
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+      audio.play();
+    }
+
+    function pause() {
+      audio.pause();
+    }
+
+    function load(i) {
+      current = i;
+      audio.src = songs[i];
+      document.getElementById("song").innerHTML = songs[i].replace('songs/', '');
+      play();
+    }
+
+    function addMusic() {
+      // Username updated to Clover-v8
+      window.open("https://github.com/Clover-v8/Car-Music-Player/upload/main/songs", "_blank");
+    }
+
+    async function loadSongs() {
+      let data = await fetch("songs.json");
+      songs = await data.json();
+      let list = document.getElementById("list");
+      
+      songs.forEach((s, i) => {
+        let b = document.createElement("button");
+        b.innerHTML = s.replace('songs/', '');
+        b.onclick = () => load(i);
+        list.appendChild(b);
+      });
+    }
+
+    loadSongs();
+  </script>
+</body>
+</html>
